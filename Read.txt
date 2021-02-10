@@ -1,0 +1,4 @@
+https://github.com/lushan88a/google_trans_new
+https://www.worldstandards.eu/other/tlds/
+
+pip install google_trans_new
