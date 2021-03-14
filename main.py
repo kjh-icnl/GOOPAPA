@@ -1,125 +1,149 @@
+from tkinter import *
+from tkinter import ttk
+from tkinter.ttk import Label, Style
+import tkinter.font as tkFont
+
 import time
-from multiprocessing import Process, shared_memory
-import threading
 
-share = threading.Condition()
-init = 0
-
-class Screen(threading.Thread):
-	def __init__(self, name):
-		threading.Thread.__init__(self)
-		self.name = name
-
-	def run(self):
-		global init
-
-		count = 0
-		while True:
-			share.acquire()
-			print(init)
-			if init == 1:
-				share.release()
-				break
-
-			if count % 5 == 0:
-				count = 1
-
-			prompt = 'Loading' + '.'*count
-			print(prompt, end='\r')
-			time.sleep(1)
-			count += 1
+import LIST as lang
+import roles
 
 
-
-class Load(threading.Thread):
-	def __init__(self):
-		threading.Thread.__init__(self)
-		self.name = name
-
-	def run(self):
-		global init
-
-		try:
-			import sys
-			from google_trans_new import google_translator
-			time.sleep(5)
-			share.acquire()
-			init = 1
-			share.notify_all()
-			share.release()
-
-		except ImportError as error:
-			print(f"Execution Error: {error}")
-			sys.exit()
-
-"""
-def load(id, state):
-	if state == 'init':
-		try:
-			import sys
-			from google_trans_new import google_translator
-			time.sleep(5)
-			ext_init = shared_memory.SharedMemory(name='initial')
-			existing = ext_init.buf
-			existing = 1
-
-
-		except ImportError as error:
-			print(f"Execution Error: {error}")
-			sys.exit()
-
-	elif state == 'screen':
-		count = 1
-		ext_init = shared_memory.SharedMemory(name='initial')
-		ext = ext_init.buf
-		while ext != 0:
-			if count % 5 == 0:
-				count = 1
-
-			prompt = 'Loading' + '.'*count
-			print(prompt, end='\r')
-			time.sleep(0.5)
-			count += 1
-			
-			ext_init = shared_memory.SharedMemory(name='initial')
-			ext = ext_init.buf
-
+def myClick():
+	answer = ans1.get("1.0", END)
+	print(answer)
+	if 'Enter Your name' in answer:
+		return
 	else:
+		hello = 'Hello, ' + answer
+		#myLabel = Label(root, text=hello)
+		#myLabel.place(x=270, y=120)
+		ans2.config(state="normal")
+		ans2.delete("1.0", END)
+		ans2.insert(INSERT, hello)
+
+
+def click():
+	answer = ans1.get("1.0", END)
+	src = combobox1.get()
+	dst = combobox2.get()
+	temp = ''
+	#print(src, dst)
+
+	if src == '':
+		src = "Auto"
+
+	if dst == '':
+		dst = "Auto"
+
+	result, org, arr = roles.translate(answer, src, dst)
+	global description, process
+
+	if org == None:
 		pass
+	elif src == 'Auto':
+		
+
+		description.destroy()
+		process.destroy()
+
+		temp = org + " → " + arr
+		description = Label(root, text=temp, justify='center')
+		description.grid(row=4, column=1)
+
+		temp = org + "\nis\ndetected"
+		process = Label(root, text=temp, justify='center')
+		process.grid(row=5, column=1)
+	else:
+		description.destroy()
+
+		temp = org + " → " + arr
+		description = Label(root, text=temp, justify='center')
+		description.grid(row=4, column=1)
+
+	ans2.config(state='normal')
+	ans2.delete("1.0", END)
+	ans2.insert("1.0", result)
+	ans2.config(state='disabled')
+
+                                         
+
+
+root = Tk()
+root.geometry("590x390")
+root.title('GooPAPA: Translator')
+
+
+style = ttk.Style()
+style.map("C.TButton",
+    foreground=[('pressed', 'red'), ('active', 'blue')],
+    background=[('pressed', '!disabled', 'black'), ('active', 'white')]
+    )
+
+
+#msgbox = Tk()
+#msgbox.geometry("400x400")
+
+title_style = ttk.Style(root)
+title_style.configure("Title.Label", font=('Arial', 25))
+Label(root, text="GooPAPA: Translator", style="Title.Label").grid(row=0, columnspan=3)
+
+combobox1 = ttk.Combobox(root, values = lang.LANGUAGES)
+combobox1.grid(row=1, column=0, padx=10, pady=10)
+
+combobox2 = ttk.Combobox(root, values = lang.LANGUAGES)
+combobox2.grid(row=1, column=2, padx=10, pady=10)
+
+entry_style = ttk.Style(root)
+entry_style.configure("Entry.Msg", font=("Courier", 15, "italic"))
+
+
+ans1 = Text(root, borderwidth=3, width=20, height=10, font=("서울남산체", 15, "italic"))
+#ans1.place(x=20, y=70)
+ans1.grid(row = 2, column=0, padx=10, pady=10, rowspan=5)
+ans1.insert("1.0", "Enter Your name")
+#ans1 = tkFont.Font(family='Courier', size=15, slant='italic')
+#ans1.grid(row=0, column=0)
+#ans1.pack()
+
+ans2 = Text(root, borderwidth=3, width=20, height=10, font=("서울남산체", 15, "italic"))
+#ans2.place(x=420, y=70)
+ans2.insert("1.0", "Result")
+ans2.config(state="disabled")
+ans2.grid(row=2, column=2, padx=10, pady=10, rowspan=5)
+#ans2.pack()
+#ans = Entry(root, width=50, height=100, bg='red', fg='white')
+
+myButton = ttk.Button(root, text="Translate", style="C.TButton", command=click)
+#myButton.place(x=270, y=70)
+myButton.grid(row=3, column=1)
+#myButton = Button(root, text="Click!!", style="C.TButton", command=myClick, fg="white", bg="black")
+#myButton.pack()
+
+
+description = Label(root, text=" ")
+description.grid(row = 4, column=1)
+process = Label(root, text=" ")
+process.grid(row=5, column=1)
+#myLabel.place(x=270, y=120)
+inform1 = Label(root, text="How To Use").grid(row=8, column=0, padx=10, sticky='sw')
+inform2 = Label(root, text="Loading").grid(row=9, column=0, padx=10, sticky='sw')
+
+root.mainloop()
+
+
+
+
+
+"""
+def loading():
+	for i in range(1, 6):
+		txt = "Loading" + "."*i
+		inform2 = Label(root, text=txt).grid(row=9, column=0, padx=10, sticky='sw')
+		time.sleep(1)
+
+loading()
 """
 
-def main():
-	#initialization
-	#shd_init = shared_memory.SharedMemory(name = 'initial', create=True, size = 1)
-	#initial = shd_init.buf
-	#initial = 0
 
-	"""
-	states = ['init', 'screen']
-	tasks = []
-	for i, state in enumerate(states):
-		thread = Process(target=load, args=(i+1, state))
-		tasks.append(thread)
-		thread.start()
-
-	for tsk in tasks:
-		tsk.join()
-	"""
-
-	th1 = Screen("screen")
-	th2 = Load("load")
-
-	th1.start()
-	th2.start()
-
-	th1.join()
-	th2.join()
-
-
-	#translator = google_translator()
-	#translate_text = translator.translate('Hola!',lang_tgt='en')  
-	#print(translate_text)
-
-
-if __name__ == '__main__':
-	main()
+#https://digiconfactory.tistory.com/141
