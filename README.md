@@ -4,7 +4,7 @@
 ### 2022.10: 404 Client Error
 > Error: requests.exceptions.HTTPError: 404 Client Error: Not Found for url:
 
-모든 코드 수정은 `google_trans_new.py`에서 진행됩니다.
+모든 코드 수정은 `google_trans_new.py`에서 진행됩니다.</br>
 All code revisions are performed in the python translator package `google_trans_new.py`.
 
 Line 16 (기본 URL 서픽스 수정)
